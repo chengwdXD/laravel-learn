@@ -9,6 +9,8 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    // php artisan migrate
+    // php artisan migrate:rollback
     public function up(): void
     {
         Schema::create('hotels', function (Blueprint $table) {
