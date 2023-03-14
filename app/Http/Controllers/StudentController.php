@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Student;
+use App\Exports\StudentsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StudentController extends Controller
 {
@@ -11,25 +14,11 @@ class StudentController extends Controller
      */
     public function index()
     {
-        // dd('index~~~');
-        // $data=[
-        //     'name'=>'kai',
-        //     'age'=>'18',
-        // ];
-        $data=[
-            ['name'=>'amu',
-             'moblie'=>'0387-878878'
-        ],
-            ['name'=>'bob',
-            'moblie'=>'0387-787787'
-    ],
-            ['name'=>'eee',
-             'moblie'=>'0387-888888'
-        ],
-    ];
+        $data=Student ::get();
+        // dd($data);
+        // dd('student controller ok');
 
         return view('student.index',['data'=>$data]);
-
     }
 
     /**
@@ -38,6 +27,8 @@ class StudentController extends Controller
     public function create()
     {
         //
+        // dd('hello create');
+        return view('student.create');
     }
 
     /**
@@ -46,6 +37,15 @@ class StudentController extends Controller
     public function store(Request $request)
     {
         //
+       
+ 
+        $data = new Student;
+         
+        $data->name = $request->name;
+        $data->age = $request->age;
+         
+        $data->save();
+        return redirect()->route('students.index');
     }
 
     /**
@@ -62,6 +62,12 @@ class StudentController extends Controller
     public function edit(string $id)
     {
         //
+    //    dd($id);
+    // $data=Student ::get();//=>index select all
+    $data=Student ::find($id);//where id=$id
+    // $data=Student ::where('id',$id);    
+//   dd($data);
+    return view('student.edit',['data'=>$data]);
     }
 
     /**
@@ -70,6 +76,16 @@ class StudentController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        // dd($request->all());
+        // dd('update ok');
+        // $input=$request->except(['_token','_method']);
+        $data=Student ::find($id);//呼叫table
+        $input=$request->all();//印出table全部的值
+        $data->name=$input['name'];//要修改的欄位
+        $data->age=$input['age'];//要修改的欄位
+        $data->save();//存回table
+        return redirect()->route('students.index');//回到index
+
     }
 
     /**
@@ -78,16 +94,12 @@ class StudentController extends Controller
     public function destroy(string $id)
     {
         //
+        // dd('刪除成功');
+        Student ::find($id)->delete();//找到此id,從table把這個id刪掉
+        return redirect()->route('students.index');//回到index
     }
-    public function hello(){
-        dd('hello');
-    }
-    public function excel(){
-        echo"excel";
-        // return view('student.excel');
-    }
-    public function child(){
-        
-        return view('child');
+    public function excel() 
+    {
+        return Excel::download(new StudentsExport, 'student.xlsx');
     }
 }
